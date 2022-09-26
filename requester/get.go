@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-func GetUserAuthorization() {
-	client := &http.Client{}
+func GetUserAuthorization() error {
 	req, err := http.NewRequest("GET", "https://accounts.spotify.com/authorize", nil)
 	if err != nil {
 		log.Fatalln(err)
+		return err
 	}
 
 	q := req.URL.Query()
@@ -21,7 +21,6 @@ func GetUserAuthorization() {
 
 	req.URL.RawQuery = q.Encode()
 
-	client.Do(req)
-
 	fmt.Println(req.URL.String())
+	return nil
 }

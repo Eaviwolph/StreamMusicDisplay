@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 
 	"eaviwolph.com/StreamMusicDisplay/requester"
@@ -14,4 +15,5 @@ func main() {
 
 	requester.GetUserAuthorization()
 	wg.Wait()
+	fmt.Println("Done")
 }
