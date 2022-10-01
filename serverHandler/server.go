@@ -5,28 +5,37 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"eaviwolph.com/StreamMusicDisplay/conf"
+	"github.com/zmb3/spotify/v2"
 )
 
-func callbackHandle(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/callback" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
-
-	if r.URL.Query().Get("error") != "" {
-		log.Default().Println("Code:", r.URL.Query().Get("error"))
-		return
-	}
-
-	err := os.WriteFile("code", []byte(r.URL.Query().Get("code")), 0644)
+func callbackHandler(w http.ResponseWriter, r *http.Request) {
+	tok, err := conf.Auth.Token(r.Context(), conf.State, r)
 	if err != nil {
-		log.Fatalln(err)
+		http.Error(w, "Couldn't get token", http.StatusForbidden)
+		log.Fatal(err)
 	}
-	log.Println("Code written to file")
-	fmt.Fprintf(w, "<a href=\"javascript:if (confirm(\"Close Window?\")) { close(); }\">close</a>")
+
+	conf.Code = r.URL.Query().Get("code")
+	conf.Expiry = tok.Expiry
+
+	if st := r.FormValue("state"); st != conf.State {
+		http.NotFound(w, r)
+		log.Fatalf("State mismatch: %s != %s\n", st, conf.State)
+	}
+
+	// use the token to get an authenticated client
+	client := spotify.New(conf.Auth.Client(r.Context(), tok))
+	fmt.Fprintf(w, "Login Completed!")
+	conf.Ch <- client
 }
 
-func rootHandle(w http.ResponseWriter, r *http.Request) {
+func saveConfHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("saveConfHandler")
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
 	path := "./static/index.html"
 	if r.URL.Path != "/" {
 		path = "./static" + r.URL.Path
@@ -41,8 +50,10 @@ func rootHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func StartServer() {
-	http.HandleFunc("/callback", callbackHandle)
-	http.HandleFunc("/", rootHandle)
+	http.HandleFunc("/callback", callbackHandler)
+	http.HandleFunc("/saveConf", saveConfHandler)
+
+	http.HandleFunc("/", rootHandler)
 
 	log.Println("Server listening on: http://localhost:8888")
 
