@@ -53,8 +53,8 @@ func SaveInFile(cur *spotify.CurrentlyPlaying, currentlyPlayingID string) (strin
 
 func main() {
 	ctx := context.Background()
-	os.Setenv("SPOTIFY_ID", "4e8e40f5b0b7455b97ffb08b0a5fd347")
-	os.Setenv("SPOTIFY_SECRET", "3ba9c6b6662541ad84db0871e9cc6f09")
+	os.Setenv("SPOTIFY_ID", conf.ClientID)
+	os.Setenv("SPOTIFY_SECRET", conf.ClientSecret)
 
 	go serverHandler.StartServer()
 
