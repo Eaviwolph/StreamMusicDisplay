@@ -13,6 +13,7 @@
 
 # Outputs
 output/
+code
 
 # Secrets
 conf/secrets.go
