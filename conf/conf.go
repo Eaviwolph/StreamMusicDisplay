@@ -2,10 +2,6 @@ package conf
 
 import (
 	"time"
-
-	"github.com/zmb3/spotify/v2"
-	spotifyauth "github.com/zmb3/spotify/v2/auth"
-	"golang.org/x/oauth2"
 )
 
 type FileSaveStruct struct {
@@ -23,20 +19,10 @@ type FileSaveConfStruct struct {
 
 var (
 	// Redirect URI for the Spotify API
-	redirectURI = "http://localhost:8888/callback"
-
-	// Auth is the Spotify authentication object
-	Auth *spotifyauth.Authenticator
-
-	// Ch is the channel to send the authenticated client
-	Ch = make(chan *spotify.Client)
-
-	// State is the state for the Spotify authentication
-	State = "abc123"
+	RedirectURI = "http://localhost:8888/callback"
 
 	// Token config
-	Code   = ""
-	Token  *oauth2.Token
+	Code = ""
 
 	// Config for file save
 	// Global config
@@ -56,10 +42,3 @@ var (
 		},
 	}
 )
-
-func InitAuth() {
-	Auth = spotifyauth.New(
-		spotifyauth.WithRedirectURL(redirectURI),
-		spotifyauth.WithScopes(spotifyauth.ScopeUserReadCurrentlyPlaying, spotifyauth.ScopeUserReadPlaybackState, spotifyauth.ScopeUserModifyPlaybackState),
-	)
-}

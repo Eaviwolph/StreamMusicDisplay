@@ -1,36 +1,39 @@
 package serverHandler
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"eaviwolph.com/StreamMusicDisplay/conf"
-	"github.com/zmb3/spotify/v2"
 )
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
-	var err error
-	conf.Token, err = conf.Auth.Token(context.Background(), conf.State, r)
-	if err != nil {
-		http.Error(w, "Couldn't get token", http.StatusForbidden)
-		log.Fatal(err)
+	log.Println("-------------------callbackHandler")
+	if r.URL.Path != "/callback" {
+		http.Error(w, "404 not found.", http.StatusNotFound)
+		return
+	}
+
+	if r.URL.Query().Get("error") != "" {
+		log.Default().Println("Code:", r.URL.Query().Get("error"))
+		return
 	}
 
 	conf.Code = r.URL.Query().Get("code")
-
-	if st := r.FormValue("state"); st != conf.State {
-		http.NotFound(w, r)
-		log.Fatalf("State mismatch: %s != %s\n", st, conf.State)
+	err := os.WriteFile("code", []byte(r.URL.Query().Get("code")), 0644)
+	if err != nil {
+		log.Printf("fail to write code in file: %v", err)
+		return
 	}
+	log.Println("Code written to file")
 
-	// use the token to get an authenticated client
-	client := spotify.New(conf.Auth.Client(r.Context(), conf.Token))
-	fmt.Fprintf(w, "Login Completed!")
-	conf.Ch <- client
+	dat, err := os.ReadFile("./static/callback.html")
+	if err != nil {
+		log.Println("Requested error:", err)
+	}
+	w.Write(dat)
 }
 
 func confHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,8 +42,6 @@ func confHandler(w http.ResponseWriter, r *http.Request) {
 
 func refreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("refreshTokenHandler")
-
-	conf.Token.Expiry = time.Now()
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
