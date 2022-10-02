@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
@@ -13,19 +12,9 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-func RefreshToken(ctx context.Context, client *spotify.Client) (*spotify.Client, error) {
-	if conf.Expiry.Before(time.Now()) {
-		r, _ := http.NewRequest("", "", nil)
-		q := r.URL.Query()
-		q.Add("code", conf.Code)
-		r.URL.RawQuery = q.Encode()
-		tok, err := conf.Auth.Token(ctx, conf.State, r)
-		if err != nil {
-			log.Printf("fail to refresh token: %v\n", err)
-			return client, err
-		}
-		client = spotify.New(conf.Auth.Client(ctx, tok))
-	}
+func RefreshToken(ctx context.Context) (*spotify.Client, error) {
+	log.Printf("refreshing token")
+	conf.Token, err := conf.Auth.Token(context.Background(), conf.State, r)
 	return client, nil
 }
 
@@ -51,15 +40,34 @@ func SaveInFile(cur *spotify.CurrentlyPlaying, currentlyPlayingID string) (strin
 	return currentlyPlayingID, nil
 }
 
+func SaveDefaultInFile() error {
+	for _, fs := range conf.FileSavesConf.FileSaves {
+		err := tools.SaveTxtDefaultInFile(fs.Path, fs.Default)
+		if err != nil {
+			log.Printf("fail to save in file: %v", err)
+			return err
+		}
+	}
+	return nil
+}
+
 func main() {
 	ctx := context.Background()
-	os.Setenv("SPOTIFY_ID", conf.ClientID)
-	os.Setenv("SPOTIFY_SECRET", conf.ClientSecret)
+
+	err := os.Setenv("SPOTIFY_ID", conf.ClientID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Setenv("SPOTIFY_SECRET", conf.ClientSecret)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conf.InitAuth()
 
 	go serverHandler.StartServer()
 
 	url := conf.Auth.AuthURL(conf.State)
-
 	tools.OpenBrowser(url)
 
 	// wait for auth to complete
@@ -69,14 +77,20 @@ func main() {
 	for {
 		time.Sleep(conf.Frequency)
 
-		client, err := RefreshToken(ctx, client)
-		if err != nil {
-			continue
+		if conf.Token.Expiry.Before(time.Now()) {
+			client, err = RefreshToken(ctx)
+			if err != nil {
+				continue
+			}
 		}
 
 		cur, err := client.PlayerCurrentlyPlaying(ctx)
-		if err != nil || cur == nil || cur.Item == nil {
+		if err != nil {
 			log.Printf("fail to get current playing: %v", err)
+			continue
+		}
+		if cur == nil || cur.Item == nil {
+			SaveDefaultInFile()
 			continue
 		}
 

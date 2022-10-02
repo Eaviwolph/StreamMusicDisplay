@@ -33,6 +33,19 @@ func SaveImgInFile(path string, cur *spotify.CurrentlyPlaying) error {
 	return nil
 }
 
+func SaveTxtDefaultInFile(path string, def string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	_, err = f.WriteString(def)
+
+	return nil
+}
+
 func SaveTxtInFile(path string, format string, cur *spotify.CurrentlyPlaying) error {
 	f, err := os.Create(path)
 	if err != nil {

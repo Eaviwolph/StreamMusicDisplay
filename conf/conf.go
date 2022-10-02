@@ -5,11 +5,13 @@ import (
 
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
+	"golang.org/x/oauth2"
 )
 
 type FileSaveStruct struct {
-	Path   string
-	Format string
+	Path    string
+	Format  string
+	Default string
 }
 
 type FileSaveConfStruct struct {
@@ -24,10 +26,7 @@ var (
 	redirectURI = "http://localhost:8888/callback"
 
 	// Auth is the Spotify authentication object
-	Auth = spotifyauth.New(
-		spotifyauth.WithRedirectURL(redirectURI),
-		spotifyauth.WithScopes(spotifyauth.ScopeUserReadCurrentlyPlaying),
-	)
+	Auth *spotifyauth.Authenticator
 
 	// Ch is the channel to send the authenticated client
 	Ch = make(chan *spotify.Client)
@@ -37,8 +36,9 @@ var (
 
 	// Token config
 	Code   = ""
-	Expiry = time.Time{}
+	Token  *oauth2.Token
 
+	// Config for file save
 	// Global config
 	Frequency = time.Second
 
@@ -49,9 +49,17 @@ var (
 		ImgPath: "output/img.png",
 		FileSaves: []FileSaveStruct{
 			{
-				Path:   "output/test.txt",
-				Format: "%artist% - %title% (%year%)",
+				Path:    "output/test.txt",
+				Format:  "%artist% - %title% (%year%)",
+				Default: "No song is currently playing",
 			},
 		},
 	}
 )
+
+func InitAuth() {
+	Auth = spotifyauth.New(
+		spotifyauth.WithRedirectURL(redirectURI),
+		spotifyauth.WithScopes(spotifyauth.ScopeUserReadCurrentlyPlaying, spotifyauth.ScopeUserReadPlaybackState, spotifyauth.ScopeUserModifyPlaybackState),
+	)
+}
