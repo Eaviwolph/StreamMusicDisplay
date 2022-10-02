@@ -1,8 +1,9 @@
 package requester
 
 import (
-	"encoding/base64"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -16,6 +17,8 @@ func RequestAccessToken() error {
 	data.Set("grant_type", "authorization_code")
 	data.Set("code", conf.Code)
 	data.Set("redirect_uri", conf.RedirectURI)
+	data.Set("client_id", conf.ClientID)
+	data.Set("client_secret", conf.ClientSecret)
 
 	client := &http.Client{}
 
@@ -26,16 +29,22 @@ func RequestAccessToken() error {
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(conf.ClientID+":"+conf.ClientSecret)))
 
-	var ch chan<- interface{}
-	ch <- client.Do(req)
+	req.SetBasicAuth(conf.ClientID, conf.ClientSecret)
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return err
+	}
+
+	body, err := ioutil.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	resp.Body.Close()
 	if err != nil {
 		log.Fatalln(err)
 		return err
 	}
 
 	fmt.Println(resp.Status)
-	fmt.Println(resp.Body)
+	fmt.Println(string(body))
 	return nil
 }
