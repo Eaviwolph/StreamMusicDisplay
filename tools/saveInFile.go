@@ -7,10 +7,10 @@ import (
 
 	"strings"
 
-	"github.com/zmb3/spotify/v2"
+	"eaviwolph.com/StreamMusicDisplay/structs"
 )
 
-func SaveImgInFile(path string, cur *spotify.CurrentlyPlaying) error {
+func SaveImgInFile(path string, cur structs.CurrentlyPlaying) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -42,11 +42,14 @@ func SaveTxtDefaultInFile(path string, def string) error {
 	defer f.Close()
 
 	_, err = f.WriteString(def)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func SaveTxtInFile(path string, format string, cur *spotify.CurrentlyPlaying) error {
+func SaveTxtInFile(path string, format string, cur structs.CurrentlyPlaying) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -59,8 +62,8 @@ func SaveTxtInFile(path string, format string, cur *spotify.CurrentlyPlaying) er
 	format = strings.ReplaceAll(format, "%album%", cur.Item.Album.Name)
 	format = strings.ReplaceAll(format, "%year%", cur.Item.Album.ReleaseDate)
 	format = strings.ReplaceAll(format, "%track%", fmt.Sprintf("%d", cur.Item.TrackNumber))
-	format = strings.ReplaceAll(format, "%duration%", fmt.Sprintf("%d", cur.Item.Duration))
-	format = strings.ReplaceAll(format, "%progress%", fmt.Sprintf("%d", cur.Progress))
+	format = strings.ReplaceAll(format, "%duration%", fmt.Sprintf("%d", cur.Item.DurationMs/1000))
+	format = strings.ReplaceAll(format, "%progress%", fmt.Sprintf("%d", cur.ProgressMs/1000))
 
 	_, err = f.WriteString(format)
 	if err != nil {
