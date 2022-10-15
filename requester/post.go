@@ -39,7 +39,7 @@ func RequestAccessToken() (structs.AccessToken, error) {
 		return token, err
 	}
 
-	body, err := ioutil.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	resp.Body.Close()
 	if err != nil {
 		log.Printf("fail to read response body: %v", err)

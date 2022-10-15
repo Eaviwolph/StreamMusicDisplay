@@ -3,7 +3,7 @@ package requester
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -52,7 +52,7 @@ func GetCurrentlyPlaying(token structs.AccessToken) (structs.CurrentlyPlaying, e
 		return currentlyPlaying, err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		log.Printf("fail to read response body: %v", err)
@@ -60,7 +60,7 @@ func GetCurrentlyPlaying(token structs.AccessToken) (structs.CurrentlyPlaying, e
 	}
 
 	err = json.Unmarshal(body, &currentlyPlaying)
-	if err != nil && currentlyPlaying.IsPlaying == false {
+	if err != nil && !currentlyPlaying.IsPlaying {
 		currentlyPlaying.Item = structs.Item{Name: "Nothing is playing"}
 	}
 

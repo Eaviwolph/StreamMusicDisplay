@@ -3,7 +3,7 @@ package serverHandler
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -40,7 +40,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 func confHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		bodyBytes, err := ioutil.ReadAll(r.Body)
+		bodyBytes, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Println("Error while reading body:", err)
 			http.Error(w, "Error while reading body", http.StatusInternalServerError)
