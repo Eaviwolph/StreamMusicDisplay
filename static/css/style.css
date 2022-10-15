@@ -1,7 +1,253 @@
-#test {
-    color: red;
+:root {
+    --body-background: linear-gradient(160deg, rgba(20, 13, 43, 1) 0%, rgba(30, 17, 70, 1) 15%, rgba(33, 15, 80, 1) 35%, rgba(37, 10, 92, 0.9651972157772621) 59%, rgba(54, 9, 121, 0.9466357308584686) 71%, rgba(190, 58, 146, 0.9350348027842228) 83%, rgba(0, 239, 255, 1) 100%);
+    --title-color: #d845a7;
+    --category-title-color: #e287c4;
+    --button-change-background: white;
+    --button-save-background: white;
+    --field-background: white;
+    --check-color: #ce78b1;
+    --box-shadow: #d845a731;
+
+    --box1: "";
+    --box2: "";
+    --box3: "";
+    --box4: "";
+    --box5: "";
 }
 
-.inputFieldImgPath {
-    background-color: aquamarine;
+* {
+    z-index: 3;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+body {
+    z-index: 0;
+    color: white;
+    background: var(--body-background);
+    margin: 10px;
+}
+
+#title {
+    color: var(--title-color);
+}
+
+#bodyInfos {
+    display: flex;
+    justify-content: space-between;
+}
+
+.categoryTitle {
+    color: var(--category-title-color);
+    margin-bottom: 5px;
+}
+
+#topArea {
+    display: flex;
+    gap: 100px;
+}
+
+.area {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    gap: 10px;
+}
+
+#infos {
+    height: fit-content;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: space-evenly;
+}
+
+.inputField {
+    margin-left: 10px;
+    border: none;
+    border-radius: 0.15em;
+    box-shadow: var(--box-shadow) 0 0 0 0.15em;
+}
+
+.field {
+    height: 30px;
+    width: 250px;
+    padding-left: 5px;
+    font-weight: bolder;
+}
+
+.check {
+    cursor: pointer;
+}
+
+#listFormats {
+    top: 0px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.exemplesTitle {
+    font-weight: bolder;
+    justify-self: right;
+    left: auto;
+    padding-right: 2px;
+    margin: 0px;
+}
+
+.exemples {
+    padding: 2px;
+    margin: 0px;
+    right: 0%;
+    left: auto;
+}
+
+#changeNbFormats {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#formats {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.formatTitle {
+    align-self: center;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+
+.button {
+    height: 30px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+    box-shadow: var(--box-shadow) 0 0 0 0.15em;
+    cursor: pointer;
+}
+
+
+#but {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#saveArea {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+}
+
+#saveButton {
+    width: 150px;
+}
+
+#changeColorButton {
+    height: 30px;
+    left: 0%;
+    bottom: 0%;
+    border: none;
+    background-color: transparent;
+    outline: none;
+    color: transparent;
+}
+
+/* ==================================== 
+ *               BOXES
+ * ==================================== */
+#boxes {
+    top: 0px;
+    bottom: 0px;
+    margin: -1px;
+    padding: 0px;
+    z-index: -1;
+    position: absolute;
+    width: 99%;
+    height: 100%;
+    display: flex;
+    border: none;
+}
+
+.box {
+    border: none;
+    z-index: inherit;
+    width: 25%;
+    margin: 0px;
+    padding: 0px;
+}
+
+#box1 {
+    background: var(--box1);
+}
+
+#box2 {
+    background: var(--box2);
+}
+
+#box3 {
+    background: var(--box3);
+}
+
+#box4 {
+    background: var(--box4);
+}
+
+#box5 {
+    background: var(--box5);
+}
+
+/* ==================================== 
+ *              CHECKBOX  
+ * ==================================== */
+
+
+input[type="checkbox"] {
+    /* Add if not using autoprefixer */
+    -webkit-appearance: none;
+    /* Remove most all native input styles */
+    appearance: none;
+    /* Not removed via appearance */
+
+    font: inherit;
+    color: rgb(255, 255, 255);
+    background-color: rgb(255, 255, 255);
+    width: 1.15em;
+    height: 1.15em;
+    border: 0.15em solid currentColor;
+    transform: translateY(-0.075em);
+
+    display: grid;
+    place-content: center;
+}
+
+input[type="checkbox"]::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transform-origin: center center;
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em 0.5em -0.5em var(--check-color);
+    /* Windows High Contrast Mode */
+    background-color: CanvasText;
+}
+
+input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+input[type="checkbox"]:disabled {
+    --form-control-color: var(--form-control-disabled);
+
+    color: var(--form-control-disabled);
+    cursor: not-allowed;
 }

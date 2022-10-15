@@ -1,7 +1,5 @@
 package structs
 
-import "time"
-
 type FileSaveStruct struct {
 	Path    string
 	Format  string
@@ -9,8 +7,7 @@ type FileSaveStruct struct {
 }
 
 type FileSaveConfStruct struct {
-	Frequency time.Duration
-	SaveTxt   bool
+	Frequency int
 	SaveImg   bool
 	ImgPath   string
 	FileSaves []FileSaveStruct

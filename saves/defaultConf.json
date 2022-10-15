@@ -1,6 +1,5 @@
 {
   "Frequency": 1000000000,
-  "SaveTxt": true,
   "SaveImg": true,
   "ImgPath": "output/img.png",
   "FileSaves": [

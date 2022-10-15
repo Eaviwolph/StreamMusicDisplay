@@ -12,11 +12,14 @@ import (
 )
 
 func saveAllFiles(currentlyPlaying structs.CurrentlyPlaying) error {
-	err := tools.SaveImgInFile(conf.FileSavesConf.ImgPath, currentlyPlaying)
-	if err != nil {
-		log.Printf("Error while saving %v: %v", conf.FileSavesConf.ImgPath, err)
-		return err
+	if conf.FileSavesConf.SaveImg {
+		err := tools.SaveImgInFile(conf.FileSavesConf.ImgPath, currentlyPlaying)
+		if err != nil {
+			log.Printf("Error while saving %v: %v", conf.FileSavesConf.ImgPath, err)
+			return err
+		}
 	}
+
 	for _, config := range conf.FileSavesConf.FileSaves {
 		err := tools.SaveTxtInFile(config.Path, config.Format, currentlyPlaying)
 		if err != nil {
@@ -36,7 +39,7 @@ func main() {
 
 	for {
 		if conf.Code != "" {
-			time.Sleep(conf.FileSavesConf.Frequency)
+			time.Sleep(time.Duration(conf.FileSavesConf.Frequency))
 
 			token, _ = requester.RequestAccessToken()
 			if token != (structs.AccessToken{}) {
@@ -46,8 +49,8 @@ func main() {
 	}
 
 	for {
-		time.Sleep(conf.FileSavesConf.Frequency)
-		if conf.ExpireDate.Before(time.Now()) {
+		time.Sleep(time.Duration(conf.FileSavesConf.Frequency))
+		if conf.ExpireDate.Before(time.Now().Add(-1 * time.Minute)) {
 			token, _ = requester.RefreshAccessToken(token)
 		}
 

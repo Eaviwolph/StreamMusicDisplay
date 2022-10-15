@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"eaviwolph.com/StreamMusicDisplay/conf"
 	"eaviwolph.com/StreamMusicDisplay/structs"
@@ -14,7 +15,7 @@ import (
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("error") != "" {
-		log.Default().Println("Code:", r.URL.Query().Get("error"))
+		log.Println("Code:", r.URL.Query().Get("error"))
 		http.Error(w, "Error while getting code", http.StatusBadRequest)
 		return
 	}
@@ -72,7 +73,32 @@ func confHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error while parsing conf", http.StatusInternalServerError)
 			return
 		}
+		w.Header().Add("Content-Type", "application/json")
 		w.Write(b)
+	}
+}
+
+func themeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Fprintf(w, fmt.Sprintf("%d", conf.Theme))
+	} else if r.Method == "POST" {
+		if r.URL.Query().Get("num") == "" {
+			http.Error(w, "No num param", http.StatusBadRequest)
+			return
+		}
+		var err error
+		conf.Theme, err = strconv.Atoi(r.URL.Query().Get("num"))
+		if err != nil {
+			http.Error(w, "Num is not an int", http.StatusBadRequest)
+			return
+		}
+
+		err = os.WriteFile("./saves/theme.txt", []byte(fmt.Sprintf("%d", conf.Theme)), 0644)
+		if err != nil {
+			log.Printf("Error while writing theme.txt: %v", err)
+		}
+
+		fmt.Fprintf(w, "Success")
 	}
 }
 
@@ -94,6 +120,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func StartServer() {
 	http.HandleFunc("/callback", callbackHandler)
 	http.HandleFunc("/conf", confHandler)
+	http.HandleFunc("/theme", themeHandler)
 
 	http.HandleFunc("/", rootHandler)
 

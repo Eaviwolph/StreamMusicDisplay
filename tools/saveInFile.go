@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,6 +12,9 @@ import (
 )
 
 func SaveImgInFile(path string, cur structs.CurrentlyPlaying) error {
+	if len(cur.Item.Album.Images) == 0 {
+		return errors.New("Currentlyplaying has no images")
+	}
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -53,6 +57,10 @@ func SaveTxtInFile(path string, format string, cur structs.CurrentlyPlaying) err
 	f, err := os.Create(path)
 	if err != nil {
 		return err
+	}
+
+	if format == "" {
+		return nil
 	}
 
 	defer f.Close()

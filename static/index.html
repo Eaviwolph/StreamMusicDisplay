@@ -7,14 +7,82 @@
 </head>
 
 <body>
-    <h1 id="test">Let's config your display</h1>
-    <h2 class="categoryTitle">Image Path</h2>
+    <h1 id="title">Opération configuration</h1>
+    <div id="bodyInfos">
+        <div>
+            <h3 class="categoryTitle">Informations générales</h3>
+            <div id="topArea">
+                <div class="area" id="infos">
+                    <div class="col">
+                        <label>Fréquence en secondes</label>
+                        <label>Enregistrer l'image ?</label>
+                        <label>Chemin vers l'image</label>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="inputField field" name="inputFieldFrequency" placeholder="1" />
+                        <input type="checkbox" class="inputField check" name="inputFieldIsImgSaved" />
+                        <input type="text" class="inputField field" name="inputFieldImgPath"
+                            placeholder="output/img.png" />
+                    </div>
+                </div>
 
-    <input type="checkbox" class="inputField" name="inputFieldImgPath">qsd</input>
+            </div>
 
-    <input type="text" class="inputField" name="inputFieldImgPath">
+            <h3 class="categoryTitle">Liste des formats enregistrés</h3>
+            <div id="changeNbFormats">
+                <button class="button buttonChange" id="addButton" onclick="AddFormat()">Ajouter un format</button>
+                <button class="button buttonChange" id="removeButton" onclick="RemoveFormat()">Supprimer le dernier
+                    format</button>
+            </div>
+            <div id="formats">
+                <div class="area">
+                    <p class="formatTitle">Format 1</p>
+                    <div class="col">
+                        <label>Chemin vers le texte</label>
+                        <label>Format du texte</label>
+                        <label>Texte si pas de musique</label>
+                    </div>
+                    <div class="col">
+                        <input type="text" class="inputField field" name="inputFieldTxtPath"
+                            placeholder="output/test.txt" />
+                        <input type="text" class="inputField field" name="inputFieldFormat"
+                            placeholder="%artist% - %title% (%year%)" />
+                        <input type="text" class="inputField field" name="inputFieldDefault"
+                            placeholder="No song is currently playing" />
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <button class="button" onclick="Save()">Save</button>
+        <div id="listFormats">
+            <p class="exemplesTitle">Entrées possibles</p>
+            <p class="exemplesTitle">pour le format</p>
+            <p class="exemples">%artist%</p>
+            <p class="exemples">%title%</p>
+            <p class="exemples">%album%</p>
+            <p class="exemples">%year%</p>
+            <p class="exemples">%track%</p>
+            <p class="exemples">%duration%</p>
+            <p class="exemples">%progress%</p>
+        </div>
+    </div>
+    <div id="but">
+        <div id="changeColorArea">
+            <button id="changeColorButton" onclick="ChangeColor()">Change</button>
+        </div>
+        <div id="saveArea">
+            <button class="button" id="saveButton" onclick="Save()">Sauvegarder</button>
+        </div>
+    </div>
+
+    <div id="boxes">
+        <div class="box" id="box1"></div>
+        <div class="box" id="box2"></div>
+        <div class="box" id="box3"></div>
+        <div class="box" id="box4"></div>
+        <div class="box" id="box5"></div>
+    </div>
+
 </body>
 
 </html>

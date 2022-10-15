@@ -37,7 +37,7 @@ func GetCurrentlyPlaying(token structs.AccessToken) (structs.CurrentlyPlaying, e
 	currentlyPlaying := structs.CurrentlyPlaying{}
 	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me/player/currently-playing", nil)
 	if err != nil {
-		log.Fatalln(err)
+		log.Printf("fail to create request: %v", err)
 		return currentlyPlaying, err
 	}
 
