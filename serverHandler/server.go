@@ -24,7 +24,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conf.Code = r.URL.Query().Get("code")
-	err := os.WriteFile("code", []byte(r.URL.Query().Get("code")), 0644)
+	err := os.WriteFile("saves/code", []byte(r.URL.Query().Get("code")), 0644)
 	if err != nil {
 		log.Printf("fail to write code in file: %v", err)
 		http.Error(w, "Error while writing code in file", http.StatusInternalServerError)
@@ -32,7 +32,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Code written to file")
 
-	dat, err := os.ReadFile("./static/callback.html")
+	dat, err := staticFS.ReadFile("static/callback.html")
 	if err != nil {
 		log.Println("Requested error:", err)
 		http.Error(w, "Error while reading callback.html", http.StatusInternalServerError)

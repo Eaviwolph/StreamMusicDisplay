@@ -94,6 +94,7 @@ func readTheme() {
 }
 
 func init() {
+	os.Mkdir("./saves", 0755)
 	readFileSavesConf()
 	readTheme()
 }

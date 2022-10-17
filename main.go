@@ -20,12 +20,11 @@ func saveAllFiles(currentlyPlaying structs.CurrentlyPlaying) error {
 		err := tools.SaveImgInFile(conf.FileSavesConf.ImgPath, currentlyPlaying)
 		if err != nil {
 			log.Printf("Error while saving %v: %v", conf.FileSavesConf.ImgPath, err)
-			return err
 		}
 	}
 
 	for _, config := range conf.FileSavesConf.FileSaves {
-		err := tools.SaveTxtInFile(config.Path, config.Format, currentlyPlaying)
+		err := tools.SaveTxtInFile(config.Path, config.Format, config.Default, currentlyPlaying)
 		if err != nil {
 			log.Printf("Error while saving %v: %v", config.Path, err)
 			return err

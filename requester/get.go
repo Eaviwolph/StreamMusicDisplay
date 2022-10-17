@@ -61,7 +61,7 @@ func GetCurrentlyPlaying(token structs.AccessToken) (structs.CurrentlyPlaying, e
 
 	err = json.Unmarshal(body, &currentlyPlaying)
 	if err != nil && !currentlyPlaying.IsPlaying {
-		currentlyPlaying.Item = structs.Item{Name: "Nothing is playing"}
+		currentlyPlaying.Item = structs.Item{Name: ""}
 	}
 
 	return currentlyPlaying, err

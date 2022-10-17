@@ -53,7 +53,7 @@ func SaveTxtDefaultInFile(path string, def string) error {
 	return nil
 }
 
-func SaveTxtInFile(path string, format string, cur structs.CurrentlyPlaying) error {
+func SaveTxtInFile(path string, format string, def string, cur structs.CurrentlyPlaying) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -61,6 +61,13 @@ func SaveTxtInFile(path string, format string, cur structs.CurrentlyPlaying) err
 
 	if format == "" {
 		return nil
+	}
+
+	if cur.Item.Name == "" {
+		_, err = f.WriteString(def)
+		if err != nil {
+			return err
+		}
 	}
 
 	defer f.Close()
