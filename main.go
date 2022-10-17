@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"log"
 	"time"
 
@@ -10,6 +11,9 @@ import (
 	"eaviwolph.com/StreamMusicDisplay/structs"
 	"eaviwolph.com/StreamMusicDisplay/tools"
 )
+
+//go:embed static/*
+var staticFS embed.FS
 
 func saveAllFiles(currentlyPlaying structs.CurrentlyPlaying) error {
 	if conf.FileSavesConf.SaveImg {
@@ -31,7 +35,7 @@ func saveAllFiles(currentlyPlaying structs.CurrentlyPlaying) error {
 }
 
 func main() {
-	go serverHandler.StartServer()
+	go serverHandler.StartServer(staticFS)
 
 	requester.GetUserAuthorization()
 

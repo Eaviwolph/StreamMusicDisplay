@@ -1,6 +1,7 @@
 package serverHandler
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +13,8 @@ import (
 	"eaviwolph.com/StreamMusicDisplay/conf"
 	"eaviwolph.com/StreamMusicDisplay/structs"
 )
+
+var staticFS embed.FS
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("error") != "" {
@@ -103,12 +106,12 @@ func themeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	path := "./static/index.html"
+	path := "static/index.html"
 	if r.URL.Path != "/" {
-		path = "./static" + r.URL.Path
+		path = "static" + r.URL.Path
 		log.Println("Requested:", path)
 	}
-	dat, err := os.ReadFile(path)
+	dat, err := staticFS.ReadFile(path)
 	if err != nil {
 		log.Println("Requested error:", err)
 		http.Error(w, fmt.Sprintf("Error while reading %v", path), http.StatusInternalServerError)
@@ -117,7 +120,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(dat)
 }
 
-func StartServer() {
+func StartServer(static embed.FS) {
+	staticFS = static
 	http.HandleFunc("/callback", callbackHandler)
 	http.HandleFunc("/conf", confHandler)
 	http.HandleFunc("/theme", themeHandler)
