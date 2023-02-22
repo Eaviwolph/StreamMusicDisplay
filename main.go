@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"os"
 	"time"
 
 	"eaviwolph.com/StreamMusicDisplay/conf"
@@ -36,27 +37,41 @@ func saveAllFiles(ctx context.Context, currentlyPlaying structs.CurrentlyPlaying
 
 func main() {
 	ctx := context.Background()
+	log := logger.Get(ctx)
 
 	go serverHandler.StartServer(ctx, staticFS)
 
-	requester.GetUserAuthorization(ctx)
-
 	token := structs.AccessToken{}
 
-	for {
-		if conf.Code != "" {
-			time.Sleep(time.Duration(conf.FileSavesConf.Frequency))
+	byteRefresh, err := os.ReadFile("./saves/refreshtoken")
+	if err != nil {
+		log.WithError(err).Error("Error while reading 'refreshtoken', requesting new one")
+		requester.GetUserAuthorization(ctx)
+	} else {
+		token.RefreshToken = string(byteRefresh)
+	}
 
-			token, _ = requester.RequestAccessToken(ctx)
-			if token != (structs.AccessToken{}) {
-				break
+	if token.RefreshToken == "" {
+		for {
+			if conf.Code != "" {
+				time.Sleep(time.Duration(conf.FileSavesConf.Frequency))
+
+				token, _ = requester.RequestAccessToken(ctx)
+
+				if token != (structs.AccessToken{}) {
+					os.WriteFile("./saves/refreshtoken", []byte(token.RefreshToken), 0644)
+					break
+				}
 			}
 		}
 	}
 
+	log.Info("Token received")
+
 	for {
 		time.Sleep(time.Duration(conf.FileSavesConf.Frequency))
 		if conf.ExpireDate.Before(time.Now().Add(-1 * time.Minute)) {
+			log.Info("Token expired, refreshing")
 			token, _ = requester.RefreshAccessToken(ctx, token)
 		}
 

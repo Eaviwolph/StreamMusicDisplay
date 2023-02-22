@@ -22,6 +22,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conf.Code = r.URL.Query().Get("code")
+
 	err := os.WriteFile("saves/code", []byte(r.URL.Query().Get("code")), 0644)
 	if err != nil {
 		log.WithError(err).Error("fail to write code in file")
