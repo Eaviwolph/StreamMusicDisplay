@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
+
 	"net/http"
 	"net/url"
 	"strings"
@@ -84,7 +84,7 @@ func RefreshAccessToken(ctx context.Context, token structs.AccessToken) (structs
 		return token, err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		log.WithError(err).Error("fail to read response body")
