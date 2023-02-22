@@ -1,14 +1,15 @@
 package conf
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"eaviwolph.com/StreamMusicDisplay/structs"
+	"github.com/Scalingo/go-utils/logger"
 )
 
 var (
@@ -41,53 +42,58 @@ var (
 )
 
 func readFileSavesConf() {
+	ctx := context.Background()
+	log := logger.Get(ctx)
 	errFunc := func() {
-		log.Println("Default config creation")
+		log.Info("Default config creation")
 		fileSavesConfBytes, err := json.Marshal(FileSavesConf)
 		if err != nil {
-			log.Printf("Error while marshalling FileSavesConf: %v", err)
+			log.WithError(err).Error("Error while marshalling FileSavesConf")
 			return
 		}
 		err = os.WriteFile("./saves/conf.json", fileSavesConfBytes, 0644)
 		if err != nil {
-			log.Printf("Error while writing conf.json: %v", err)
+			log.WithError(err).Error("Error while writing conf.json")
 		}
 	}
 
 	b, err := os.ReadFile("./saves/conf.json")
 	if err != nil {
-		log.Printf("Error while reading conf.json: %v", err)
+		log.WithError(err).Error("Error while reading conf.json")
 		errFunc()
 		return
 	}
 
 	err = json.Unmarshal(b, &FileSavesConf)
 	if err != nil {
-		log.Printf("Error while unmarshalling conf.json: %v", err)
+		log.WithError(err).Error("Error while unmarshalling conf.json")
 		errFunc()
 		return
 	}
 }
 
 func readTheme() {
+	ctx := context.Background()
+	log := logger.Get(ctx)
+
 	errFunc := func() {
 		log.Println("Default theme creation")
 		err := os.WriteFile("./saves/theme.txt", []byte(fmt.Sprintf("%d", Theme)), 0644)
 		if err != nil {
-			log.Printf("Error while writing theme.txt: %v", err)
+			log.WithError(err).Error("Error while writing theme.txt")
 		}
 	}
 
 	b, err := os.ReadFile("./saves/theme.txt")
 	if err != nil {
-		log.Printf("Error while reading theme.txt: %v", err)
+		log.WithError(err).Error("Error while reading theme.txt")
 		errFunc()
 		return
 	}
 
 	Theme, err = strconv.Atoi(string(b))
 	if err != nil {
-		log.Printf("Error while parsing theme.txt: %v", err)
+		log.WithError(err).Error("Error while parsing theme.txt")
 		errFunc()
 		return
 	}

@@ -1,21 +1,24 @@
 package requester
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"eaviwolph.com/StreamMusicDisplay/conf"
 	"eaviwolph.com/StreamMusicDisplay/structs"
 	"eaviwolph.com/StreamMusicDisplay/tools"
+	"github.com/Scalingo/go-utils/logger"
 )
 
-func GetUserAuthorization() error {
+func GetUserAuthorization(ctx context.Context) error {
+	log := logger.Get(ctx)
+
 	req, err := http.NewRequest("GET", "https://accounts.spotify.com/authorize", nil)
 	if err != nil {
-		log.Fatalln(err)
+		log.WithError(err).Error("fail to create request")
 		return err
 	}
 
@@ -27,17 +30,19 @@ func GetUserAuthorization() error {
 
 	req.URL.RawQuery = q.Encode()
 
-	log.Printf("If you are not redirected automatically, please go to this link: %s", req.URL.String())
+	log.Infof("If you are not redirected automatically, please go to this link: %s", req.URL.String())
 
-	tools.OpenBrowser(req.URL.String())
+	tools.OpenBrowser(ctx, req.URL.String())
 	return nil
 }
 
-func GetCurrentlyPlaying(token structs.AccessToken) (structs.CurrentlyPlaying, error) {
+func GetCurrentlyPlaying(ctx context.Context, token structs.AccessToken) (structs.CurrentlyPlaying, error) {
+	log := logger.Get(ctx)
+
 	currentlyPlaying := structs.CurrentlyPlaying{}
 	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me/player/currently-playing", nil)
 	if err != nil {
-		log.Printf("fail to create request: %v", err)
+		log.WithError(err).Error("fail to create request")
 		return currentlyPlaying, err
 	}
 
@@ -48,14 +53,14 @@ func GetCurrentlyPlaying(token structs.AccessToken) (structs.CurrentlyPlaying, e
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("fail to send request: %v", err)
+		log.WithError(err).Error("fail to send request")
 		return currentlyPlaying, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		log.Printf("fail to read response body: %v", err)
+		log.WithError(err).Error("fail to read response body")
 		return currentlyPlaying, err
 	}
 

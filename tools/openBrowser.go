@@ -1,14 +1,17 @@
 package tools
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"os/exec"
 	"runtime"
+
+	"github.com/Scalingo/go-utils/logger"
 )
 
-func OpenBrowser(url string) {
+func OpenBrowser(ctx context.Context, url string) {
 	var err error
+	log := logger.Get(ctx)
 
 	switch runtime.GOOS {
 	case "linux":
@@ -21,6 +24,6 @@ func OpenBrowser(url string) {
 		err = fmt.Errorf("unsupported platform")
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.WithError(err).Info("Error while opening browser")
 	}
 }

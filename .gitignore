@@ -12,6 +12,7 @@
 *.out
 
 # Outputs
+saves/
 output/
 code
 

@@ -1,10 +1,10 @@
 package requester
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -12,9 +12,11 @@ import (
 
 	"eaviwolph.com/StreamMusicDisplay/conf"
 	"eaviwolph.com/StreamMusicDisplay/structs"
+	"github.com/Scalingo/go-utils/logger"
 )
 
-func RequestAccessToken() (structs.AccessToken, error) {
+func RequestAccessToken(ctx context.Context) (structs.AccessToken, error) {
+	log := logger.Get(ctx)
 	token := structs.AccessToken{}
 
 	data := url.Values{}
@@ -26,7 +28,7 @@ func RequestAccessToken() (structs.AccessToken, error) {
 
 	req, err := http.NewRequest(http.MethodPost, "https://accounts.spotify.com/api/token", strings.NewReader(data.Encode()))
 	if err != nil {
-		log.Printf("fail to create request: %v", err)
+		log.WithError(err).Error("fail to create request")
 		return token, err
 	}
 
@@ -35,27 +37,29 @@ func RequestAccessToken() (structs.AccessToken, error) {
 	req.SetBasicAuth(conf.ClientID, conf.ClientSecret)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("fail to send request: %v", err)
+		log.WithError(err).Error("fail to send request")
 		return token, err
 	}
 
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	resp.Body.Close()
 	if err != nil {
-		log.Printf("fail to read response body: %v", err)
+		log.WithError(err).Error("fail to read response body")
 		return token, err
 	}
 
 	err = json.Unmarshal(body, &token)
 	if err != nil {
-		log.Printf("fail to unmarshal response body: %v", err)
+		log.WithError(err).Error("fail to unmarshal response body")
 		return token, err
 	}
 	conf.ExpireDate = time.Now().Add(time.Duration(token.ExpiresIn) * time.Second)
 	return token, nil
 }
 
-func RefreshAccessToken(token structs.AccessToken) (structs.AccessToken, error) {
+func RefreshAccessToken(ctx context.Context, token structs.AccessToken) (structs.AccessToken, error) {
+	log := logger.Get(ctx)
+
 	newToken := structs.AccessToken{}
 
 	data := url.Values{}
@@ -67,7 +71,7 @@ func RefreshAccessToken(token structs.AccessToken) (structs.AccessToken, error) 
 
 	req, err := http.NewRequest(http.MethodPost, "https://accounts.spotify.com/api/token", strings.NewReader(data.Encode()))
 	if err != nil {
-		log.Printf("fail to create request: %v", err)
+		log.WithError(err).Error("fail to create request")
 		return token, err
 	}
 
@@ -76,20 +80,20 @@ func RefreshAccessToken(token structs.AccessToken) (structs.AccessToken, error) 
 	req.SetBasicAuth(conf.ClientID, conf.ClientSecret)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("fail to send request: %v", err)
+		log.WithError(err).Error("fail to send request")
 		return token, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		log.Printf("fail to read response body: %v", err)
+		log.WithError(err).Error("fail to read response body")
 		return token, err
 	}
 
 	err = json.Unmarshal(body, &newToken)
 	if err != nil {
-		log.Printf("fail to unmarshal response body: %v", err)
+		log.WithError(err).Error("fail to unmarshal response body")
 		return newToken, err
 	}
 	token.AccessToken = newToken.AccessToken
